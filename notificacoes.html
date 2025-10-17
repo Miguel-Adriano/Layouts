@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notificação Elegante com SVGs</title>
+    <title>Notificação (Demo e Código)</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
     
     <style>
         /* --- Estilos da Página e Botões (para o exemplo) --- */
@@ -11,11 +13,13 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             padding: 24px;
             background-color: #f4f7f6;
+            color: #333;
         }
 
         .button-container {
             display: flex;
             gap: 10px; /* Espaço entre os botões */
+            margin-bottom: 24px; /* Espaço abaixo dos botões */
         }
 
         .button-container button {
@@ -35,42 +39,29 @@
         .btn-error:hover   { background-color: #f5c6cb; }
         .btn-warn:hover    { background-color: #ffeeba; }
 
-
-        /* --- Estilos da Notificação --- */
+        
+        /* --- CSS DA NOTIFICAÇÃO (Funcional) --- */
         #elegant-notification {
-            /* --- Posicionamento --- */
             position: fixed;
             top: 24px;
             right: 24px;
             z-index: 9999;
-
-            /* --- Layout Interno e Espaçamento --- */
+            /* ... (estilos da notificação) ... */
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 16px;
-
-            /* --- Design e Estilo --- */
             min-width: 320px;
             border-radius: 12px;
             color: #fff;
             background: rgba(30, 41, 59, 0.9);
-            /* Fundo escuro semi-transparente */
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
-
-            /* Efeito de vidro para um toque moderno */
             -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
-
-            /* --- Tipografia --- */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-size: 15px;
             font-weight: 500;
             line-height: 1.4;
-
-            /* --- Animação Suave e Fluida --- */
-            /* Estado inicial: escondido e invisível */
             opacity: 0;
             transform: translateY(-20px) scale(0.95);
             visibility: hidden;
@@ -78,40 +69,108 @@
                 opacity 0.3s ease,
                 visibility 0.3s;
         }
-
-        /* Estado visível da notificação */
         #elegant-notification.show {
             opacity: 1;
             transform: translateY(0) scale(1);
             visibility: visible;
         }
-
-        /* --- Ícones --- */
         #notification-icon svg {
             width: 24px;
             height: 24px;
         }
+        #elegant-notification.success #notification-icon { color: #34d399; }
+        #elegant-notification.error #notification-icon   { color: #f87171; }
+        #elegant-notification.warn #notification-icon    { color: #f59e0b; }
 
-        /* Ícone de Sucesso (Círculo Verde) */
-        #elegant-notification.success #notification-icon {
-            color: #34d399;
-            /* Verde Esmeralda */
+        
+        /* --- ESTILOS DO VISUALIZADOR DE CÓDIGO --- */
+        .code-viewer {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 32px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        /* Ícone de Erro (Círculo Vermelho) */
-        #elegant-notification.error #notification-icon {
-            color: #f87171;
-            /* Vermelho Claro */
+        .code-tabs {
+            display: flex;
+            background-color: #f9fafb;
+            border-bottom: 1px solid #d1d5db;
+            align-items: center; 
+            padding-right: 12px;
         }
 
-        #elegant-notification.warn #notification-icon {
-            color: #f59e0b;
-            /* Amarelo */
+        .code-tabs button.tab-link {
+            padding: 12px 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
         }
+        .code-tabs button.tab-link:hover { color: #111827; }
+        .code-tabs button.tab-link.active {
+            color: #1f2937;
+            border-bottom-color: #3b82f6;
+        }
+
+        .copy-button {
+            margin-left: auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background-color: #ffffff;
+            color: #374151;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .copy-button:hover { background-color: #f3f4f6; }
+        .copy-button:active { background-color: #e5e7eb; }
+        .copy-button.copied {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+
+        /* Bloco de código <pre><code> */
+        .code-content pre {
+            /* NOVA MUDANÇA (2/4): 
+              Removemos background e color para deixar o tema do Prism.js tomar conta.
+              Mantivemos os outros estilos para preservar seu layout.
+            */
+            /* background-color: #282a36; */ /* REMOVIDO */
+            /* color: #f8f8f2; */             /* REMOVIDO */
+            
+            /* Isso é necessário para o tema do Prism aplicar o padding corretamente */
+            padding: 1em; /* O tema Okaidia usa '1em'. Vamos padronizar. */
+            margin: 0;
+            overflow-x: auto;
+            
+            /* Esses são do tema, mas podemos forçar para garantir */
+            font-family: 'Consolas', 'Menlo', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-content code {
+            /* O Prism cuida disso, não precisamos de 'white-space: pre;' aqui */
+        }
+
+        .code-content { display: none; }
+        .code-content.active { display: block; }
     </style>
 </head>
 <body>
 
+    <h2>Demo Funcional</h2>
     <div class="button-container">
         <button class="btn-success" onclick="showNotification('Operação concluída com sucesso!', 'success')">
             Mostrar Sucesso
@@ -129,7 +188,150 @@
         <span id="notification-message"></span>
     </div>
 
+    <hr>
+
+    <h2>Código-Fonte</h2>
+    <div class="code-viewer">
+        
+        <div class="code-tabs">
+            <button class="tab-link active" onclick="showCode(event, 'html')">HTML</button>
+            <button class="tab-link" onclick="showCode(event, 'css')">CSS</button>
+            <button class="tab-link" onclick="showCode(event, 'js')">JavaScript</button>
+            <button id="copy-button" class="copy-button" onclick="copyActiveCode()">
+                Copiar Código
+            </button>
+        </div>
+
+        <div id="html-code" class="code-content active">
+<pre><code class="language-html">&lt;!-- Botões para disparar as notificações --&gt;
+&lt;div class=&quot;button-container&quot;&gt;
+    &lt;button class=&quot;btn-success&quot; onclick=&quot;showNotification('Operação concluída com sucesso!', 'success')&quot;&gt;
+        Mostrar Sucesso
+    &lt;/button&gt;
+    &lt;button class=&quot;btn-error&quot; onclick=&quot;showNotification('Ocorreu um erro ao processar.', 'error')&gt;
+        Mostrar Erro
+    &lt;/button&gt;
+    &lt;button class=&quot;btn-warn&quot; onclick=&quot;showNotification('Atenção: verifique os dados.', 'warn')&quot;&gt;
+        Mostrar Aviso
+    &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- O elemento HTML da notificação --&gt;
+&lt;div id=&quot;elegant-notification&quot; class=&quot;notification&quot;&gt;
+    &lt;span id=&quot;notification-icon&quot;&gt;&lt;/span&gt;
+    &lt;span id=&quot;notification-message&quot;&gt;&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+
+        <div id="css-code" class="code-content">
+<pre><code class="language-css">/* --- Estilos da Página e Botões (para o exemplo) --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Helvetica, Arial, sans-serif;
+    padding: 24px;
+    background-color: #f4f7f6;
+}
+.button-container {
+    display: flex;
+    gap: 10px;
+}
+/* ... (estilos dos botões omitidos para brevidade) ... */
+
+
+/* --- CSS DA NOTIFICAÇÃO --- */
+#elegant-notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    min-width: 320px;
+    border-radius: 12px;
+    color: #fff;
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+    
+    /* Animação */
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+        opacity 0.3s ease,
+        visibility 0.3s;
+}
+#elegant-notification.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    visibility: visible;
+}
+#notification-icon svg {
+    width: 24px;
+    height: 24px;
+}
+/* Cores do ícone por tipo */
+#elegant-notification.success #notification-icon { color: #34d399; }
+#elegant-notification.error #notification-icon   { color: #f87171; }
+#elegant-notification.warn #notification-icon    { color: #f59e0b; }
+</code></pre>
+        </div>
+
+        <div id="js-code" class="code-content">
+<pre><code class="language-javascript">let notificationTimeout;
+
+// Objeto com os ícones SVG
+const elegantIcons = {
+    success: `&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke-width=&quot;2&quot; stroke=&quot;currentColor&quot;&gt;
+                &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z&quot; /&gt;
+            &lt;/svg&gt;`,
+    error: `&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke-width=&quot;2&quot; stroke=&quot;currentColor&quot;&gt;
+                &lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z&quot; /&gt;
+            &lt;/svg&gt;`,
+    warn: `&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;none&quot; viewBox=&quot;0 0 24 24&quot; stroke-width=&quot;2&quot; stroke=&quot;currentColor&quot;&gt;&lt;path stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; d=&quot;M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z&quot; /&gt;&lt;/svg&gt;`
+};
+
+    
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('elegant-notification');
+    const messageEl = document.getElementById('notification-message');
+    const iconEl = document.getElementById('notification-icon');
+    if (!notification || !messageEl || !iconEl) return;
+
+    // Limpa o timer anterior
+    clearTimeout(notificationTimeout);
+
+    // 1. Define o ícone e a mensagem
+    iconEl.innerHTML = elegantIcons[type];
+    messageEl.textContent = message;
+
+    // 2. Define a classe para a cor do ícone
+    notification.classList.remove('success', 'error', 'warn');
+    notification.classList.add(type);
+
+    // 3. Ativa a animação de entrada
+    notification.classList.add('show');
+
+    // 4. Agenda a animação de saída
+    notificationTimeout = setTimeout(() =&gt; {
+        notification.classList.remove('show');
+    }, 4000);
+}</code></pre>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
     <script>
+        // --- CÓDIGO FUNCIONAL DA NOTIFICAÇÃO ---
         let notificationTimeout;
 
         const elegantIcons = {
@@ -148,25 +350,52 @@
             const messageEl = document.getElementById('notification-message');
             const iconEl = document.getElementById('notification-icon');
             if (!notification || !messageEl || !iconEl) return;
-
-            // Limpa o timer anterior para evitar sobreposição de animações
             clearTimeout(notificationTimeout);
-
-            // 1. Define o ícone e a mensagem
             iconEl.innerHTML = elegantIcons[type];
             messageEl.textContent = message;
-
-            // 2. Define a classe para a cor do ícone
             notification.classList.remove('success', 'error', 'warn');
             notification.classList.add(type);
-
-            // 3. Ativa a animação de entrada
             notification.classList.add('show');
-
-            // 4. Agenda a animação de saída
             notificationTimeout = setTimeout(() => {
                 notification.classList.remove('show');
             }, 4000);
+        }
+
+        // --- CÓDIGO PARA FAZER AS ABAS FUNCIONAREM ---
+        function showCode(event, codeName) {
+            const codeContents = document.querySelectorAll('.code-content');
+            codeContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            const tabLinks = document.querySelectorAll('.tab-link');
+            tabLinks.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(codeName + '-code').classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- CÓDIGO PARA O BOTÃO COPIAR ---
+        function copyActiveCode() {
+            const activeCodeBlock = document.querySelector('.code-content.active');
+            const codeText = activeCodeBlock.querySelector('pre code').innerText; // Alterado para pegar o 'code'
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const copyButton = document.getElementById('copy-button');
+                copyButton.innerText = 'Copiado! ✅';
+                copyButton.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyButton.innerText = 'Copiar Código';
+                    copyButton.classList.remove('copied');
+                }, 2000);
+
+            }).catch(err => {
+                console.error('Falha ao copiar código: ', err);
+                alert('Falha ao copiar código. Verifique o console.');
+            });
         }
     </script>
 
